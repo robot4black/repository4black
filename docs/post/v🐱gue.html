@@ -75,11 +75,6 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
   z-index: 999;
 }
 
-#fontIncreaseBtn svg text, #fontDecreaseBtn svg text {
-    pointer-events: none;
-    user-select: none;
-}
-
 #backToTop {
   position: fixed;
   bottom: 40px;
@@ -104,26 +99,6 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     .postTitle{font-size:24px;}
 }
 
-#readingStats {
-font-size: 13px;
-color: var(--color-fg-muted);
-background-color: var(--color-canvas-subtle);
-padding: 6px 12px;
-border-left: 4px solid var(--color-accent-fg);
-border-radius: 4px;
-margin: 8px auto 16px auto;
-max-width: 720px;
-}
-#readingProgress {
-position: fixed;
-top: 0;
-left: 0;
-height: 4px;
-background-color: var(--color-accent-fg);
-width: 0%;
-z-index: 9999;
-transition: width 0.2s ease-out;
-}
 </style>
 
 
@@ -149,19 +124,14 @@ transition: width 0.2s ease-out;
             <path id="themeSwitch" fill-rule="evenodd"></path>
         </svg>
     </a>
+    <a id="copyLinkBtn" class="btn btn-invisible circle">
+      <svg class="octicon" width="16" height="16" fill="currentColor">
+        <path d="M7 10h1v2H7v-2zM3 2v2H2v12h12v-3h2v4H2V2h1z"></path>
+      </svg>
+    </a>
     <a id="alignToggleBtn" class="btn btn-invisible circle">
         <svg class="octicon" width="16" height="16" fill="currentColor">
             <path d="M7 10h1v2H7v-2zM3 2v2H2v12h12v-3h2v4H2V2h1z"></path>
-        </svg>
-    </a>
-    <a href="javascript:void(0);" id="fontIncreaseBtn" class="btn btn-invisible circle" title="增大字体">
-        <svg class="octicon" width="16" height="16" fill="currentColor">
-            <text x="2" y="14" font-size="14" font-weight="bold">A+</text>
-        </svg>
-    </a>
-    <a href="javascript:void(0);" id="fontDecreaseBtn" class="btn btn-invisible circle" title="减小字体">
-        <svg class="octicon" width="16" height="16" fill="currentColor">
-            <text x="3" y="14" font-size="14" font-weight="bold">A-</text>
         </svg>
     </a>
 </div>
@@ -251,33 +221,15 @@ document.getElementById("alignToggleBtn").addEventListener("click", function () 
   }
 });
 
-(function() {
-    const postBody = document.getElementById('postBody');
-    const btnIncrease = document.getElementById('fontIncreaseBtn');
-    const btnDecrease = document.getElementById('fontDecreaseBtn');
-    let fontSize = parseFloat(window.getComputedStyle(postBody).fontSize) || 16;
-
-    btnIncrease.addEventListener('click', () => {
-        if (fontSize < 28) {
-            fontSize += 2;
-            postBody.style.fontSize = fontSize + 'px';
-        }
-    });
-    btnDecrease.addEventListener('click', () => {
-        if (fontSize > 12) {
-            fontSize -= 2;
-            postBody.style.fontSize = fontSize + 'px';
-        }
-    });
-})();
-
+// 阅读进度条
 window.addEventListener('scroll', () => {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const progress = (scrollTop / scrollHeight) * 100;
-    document.getElementById('readingProgress').style.width = progress + '%';
+  const progressBar = document.getElementById('readingProgress');
+  const totalHeight = document.body.scrollHeight - window.innerHeight;
+  const progress = (window.scrollY / totalHeight) * 100;
+  progressBar.style.width = progress + '%';
 });
 
+// 阅读时间 + 字数统计
 document.addEventListener("DOMContentLoaded", () => {
   const text = document.getElementById('postBody').innerText;
   const words = text.trim().split(/\s+/).length;
@@ -285,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('readingStats').innerText = `预计阅读时间: ${readTime} 分钟 · ${words} 字`;
 });
 
+// 返回顶部按钮
 const backToTopBtn = document.getElementById('backToTop');
 window.addEventListener('scroll', () => {
   backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
@@ -293,13 +246,13 @@ backToTopBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// 快捷键 Ctrl+K 切换主题
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
     modeSwitch();
   }
 });
-
 
 
 function openComments(){
