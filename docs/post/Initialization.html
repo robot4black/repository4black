@@ -41,7 +41,6 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     padding-right: 16px;
 }
 #postBody hr{height:2px;}
-
 #cmButton{height:48px;margin-top:48px;}
 #comments{margin-top:64px;}
 .g-emoji{font-size:24px;}
@@ -61,13 +60,42 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
   width: 16px;
   height: 16px;
 }
+
+#readingProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #007aff;
+  width: 0%;
+  z-index: 999;
+}
+
+#backToTop {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 999;
+  background: var(--color-btn-bg);
+  color: var(--color-fg-default);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  text-decoration: none;
+}
+
 @media (max-width: 600px) {
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
 
 </style>
-
 
 
 
@@ -87,14 +115,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
     
-
     <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
-        <svg class="octicon" width="16" height="16" >
+        <svg class="octicon" width="16" height="16">
             <path id="themeSwitch" fill-rule="evenodd"></path>
         </svg>
     </a>
     <a id="copyLinkBtn" class="btn btn-invisible circle">
-      <svg class="octicon" width="16" height="16" fill="currentColor" >
+      <svg class="octicon" width="16" height="16" fill="currentColor">
         <path d="M7 10h1v2H7v-2zM3 2v2H2v12h12v-3h2v4H2V2h1z"></path>
       </svg>
     </a>
@@ -104,15 +131,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
 </div>
-
 </div>
     <div id="content">
+<div id="readingStats"></div>
 <div class="markdown-body" id="postBody"><p>Nothing here.</p></div>
 <div style="font-size:small;margin-top:8px;float:right;">转载请注明出处</div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
 
+
+<a id="backToTop" title="Back to Top">↑</a>
 </div>
     <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://robot4black.github.io/repository4black/">Test</a></div>
 <div id="footer2">
@@ -186,6 +215,38 @@ document.getElementById("alignToggleBtn").addEventListener("click", function () 
   }
 });
 
+// 阅读进度条
+window.addEventListener('scroll', () => {
+  const progressBar = document.getElementById('readingProgress');
+  const totalHeight = document.body.scrollHeight - window.innerHeight;
+  const progress = (window.scrollY / totalHeight) * 100;
+  progressBar.style.width = progress + '%';
+});
+
+// 阅读时间 + 字数统计
+document.addEventListener("DOMContentLoaded", () => {
+  const text = document.getElementById('postBody').innerText;
+  const words = text.trim().split(/\s+/).length;
+  const readTime = Math.ceil(words / 300);
+  document.getElementById('readingStats').innerText = `预计阅读时间: ${readTime} 分钟 · ${words} 字`;
+});
+
+// 返回顶部按钮
+const backToTopBtn = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+});
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// 快捷键 Ctrl+K 切换主题
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    modeSwitch();
+  }
+});
 
 
 function openComments(){
@@ -224,7 +285,6 @@ function iFrameLoading(){
         }
     }
 }
-
 
 
 
