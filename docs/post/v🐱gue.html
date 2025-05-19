@@ -147,10 +147,10 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </a>
     <a id="ttsBtn" class="btn btn-invisible circle" title="朗读/暂停">
       <svg class="octicon" width="16" height="16" fill="currentColor">
-        <path d="M4 4v8l6-4-6-4z"></path> <!-- 播放图标 -->
+        <path d="M4 4v8l6-4-6-4z"></path>
       </svg>
     </a>
-    <select id="ttsRate" title="语速" style="margin-left: 8px; height: 32px; border-radius: 6px; border: 1px solid var(--color-border-default);">
+    <select id="ttsRate" title="语速" style="margin-left: 8px; height: 24px; font-size: 12px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--color-border-default); background-color: var(--color-canvas-subtle);">
       <option value="0.75">0.75x</option>
       <option value="1" selected>1x</option>
       <option value="1.25">1.25x</option>
@@ -254,11 +254,15 @@ window.addEventListener('scroll', () => {
 
 // 阅读时间 + 字数统计
 document.addEventListener("DOMContentLoaded", () => {
-  const text = document.getElementById('postBody').innerText;
-  const words = text.trim().split(/\s+/).length;
-  const readTime = Math.ceil(words / 300);
-  document.getElementById('readingStats').innerText = `预计阅读时间: ${readTime} 分钟 · ${words} 字`;
+  const text = document.getElementById('postBody').innerText || '';
+  const chineseChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  const englishWords = (text.match(/\b[a-zA-Z]+\b/g) || []).length;
+  const totalWords = chineseChars + englishWords;
+  const readTime = Math.max(1, Math.ceil(totalWords / 300));
+  document.getElementById('readingStats').innerText =
+    `预计阅读时间: ${readTime} 分钟 · ${totalWords} 字`;
 });
+
 
 // 返回顶部按钮
 const backToTopBtn = document.getElementById('backToTop');
