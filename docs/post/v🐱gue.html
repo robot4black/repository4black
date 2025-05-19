@@ -99,6 +99,26 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     .postTitle{font-size:24px;}
 }
 
+#readingStats {
+font-size: 13px;
+color: var(--color-fg-muted);
+background-color: var(--color-canvas-subtle);
+padding: 6px 12px;
+border-left: 4px solid var(--color-accent-fg);
+border-radius: 4px;
+margin: 8px auto 16px auto;
+max-width: 720px;
+}
+#readingProgress {
+position: fixed;
+top: 0;
+left: 0;
+height: 4px;
+background-color: var(--color-accent-fg);
+width: 0%;
+z-index: 9999;
+transition: width 0.2s ease-out;
+}
 </style>
 
 
@@ -294,6 +314,13 @@ function iFrameLoading(){
 
 
 
+    window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('readingProgress').style.width = progress + '%';
+    });
+    
 </script>
 
 
