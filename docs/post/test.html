@@ -187,7 +187,6 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 
 </script>
 
 <script>
-let CleanText = "";
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 //document.getElementById("read").setAttribute("d",IconList["startread"]);
 console.log(IconList["startread"]);
@@ -232,9 +231,9 @@ function iFrameLoading(){
         }
     }
 }
+
 let originalHTML = "";
 (() => {
-
   const ttsBtn = document.getElementById('ttsBtn');
   const ttsRateSelect = document.getElementById('ttsRate');
   const postBody = document.getElementById('postBody');
@@ -248,7 +247,16 @@ let originalHTML = "";
     ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
   }
 
- 
+  function getCleanTextFromPostBody() {
+  const postBody = document.getElementById('postBody');
+  const clone = postBody.cloneNode(true);
+  clone.querySelectorAll('mark, .highlight, [data-note="true"]').forEach(el => {
+    const textNode = document.createTextNode(el.innerText || el.textContent || '');
+    el.replaceWith(textNode);
+  });
+
+  return clone.innerText.trim();
+}
   function clearHighlights() {
     sentenceSpans.forEach(span => span.classList.remove("highlighted-sentence"));
   }
@@ -266,7 +274,7 @@ let originalHTML = "";
 
   function prepareSentences() {
     const postBody = document.getElementById('postBody');
-    const text = CleanText.trim();
+    const text = getCleanTextFromPostBody();
     const sentences = splitTextIntoSentences(text);
     originalHTML = postBody.innerHTML;
     postBody.innerHTML = ""; // 清空内容
@@ -357,7 +365,7 @@ let originalHTML = "";
 (function() {
   const STORAGE_KEY = 'myParagraphNotes';
   const postBody = document.getElementById('postBody');
-  CleanText = document.getElementById('postBody').innerHTML;
+
   if (!postBody) return;
 
   // 拆分文本为伪段落（按换行）
@@ -374,10 +382,14 @@ let originalHTML = "";
     postBody.appendChild(span);
   });
 
+  // 读取本地收藏笔记数据
   let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+
   function saveNotes() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notesData));
   }
+
   function renderParagraph(p) {
     const pid = p.id;
     if (notesData[pid]) {
