@@ -70,7 +70,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
 
-    <a class="btn btn-invisible circle" title="Read">
+    <a id="ttsBtn" class="btn btn-invisible circle" title="Read">
         <svg class="octicon" width="16" height="16" >
             <path d="M4 4 v8 l6 -4 -6 -4 z" fill-rule="evenodd"></path>
         </svg>
@@ -140,6 +140,7 @@ document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 //document.getElementById("read").setAttribute("d",IconList["startread"]);
 console.log(IconList["startread"]);
 document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
 cmButton=document.getElementById("cmButton");
     span=document.createElement("span");
     span.setAttribute("class","Counter");
@@ -183,6 +184,59 @@ function iFrameLoading(){
         }
     }
 }
+
+(() => {
+  const ttsBtn = document.getElementById('ttsBtn');
+  const ttsRateSelect = document.getElementById('ttsRate');
+  let utterance = null;
+  let isSpeaking = false;
+
+  function resetTTSButton() {
+    ttsBtn.title = "朗读/暂停";
+    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
+  }
+
+  ttsBtn.addEventListener('click', () => {
+    if (!window.speechSynthesis) {
+      alert('你的浏览器不支持语音合成功能');
+      return;
+    }
+
+    if (isSpeaking) {
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+        ttsBtn.title = "暂停朗读";
+        ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z"); // 暂停图标
+      } else {
+        speechSynthesis.pause();
+        ttsBtn.title = "继续朗读";
+        ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
+      }
+    } else {
+      const text = document.getElementById('postBody')?.innerText.trim();
+      if (!text) return alert('文章内容为空');
+
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "zh-CN"; // 指定中文
+      utterance.rate = parseFloat(ttsRateSelect?.value || 1);
+
+      utterance.onend = () => {
+        isSpeaking = false;
+        resetTTSButton();
+      };
+      utterance.onerror = () => {
+        isSpeaking = false;
+        resetTTSButton();
+        alert('朗读出现错误');
+      };
+
+      speechSynthesis.speak(utterance);
+      isSpeaking = true;
+      ttsBtn.title = "暂停朗读";
+      ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z"); // 暂停图标
+    }
+  });
+})();
 
 
 
