@@ -453,7 +453,7 @@ let originalHTML = "";
   });
 })();
 
-(function(){
+(function () {
   const postBody = document.getElementById('postBody');
   const STORAGE_KEY = 'myParagraphNotes';
   let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -464,27 +464,38 @@ let originalHTML = "";
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
+    // 设置中文字体（必须）
+    doc.setFont("SourceHanSans-Normal");
+    doc.setFontSize(12);
+
     const paragraphs = postBody.querySelectorAll('span.paragraph');
-    let y = 10; // 页面顶部起始纵坐标
-    const lineHeight = 8;
+    let y = 10;
+    const lineHeight = 10;
     const pageHeight = doc.internal.pageSize.height;
 
     paragraphs.forEach(p => {
-      const text = p.textContent.trim();
+      const text = p.innerText.trim(); // 注意用 innerText，避免笔记 span 被读进去
+      if (!text) return;
+
+      doc.setTextColor(0, 0, 0);
       doc.text(text, 10, y);
       y += lineHeight;
+
       const note = notesData[p.id];
-      if(note){
-        doc.setTextColor(255, 0, 0); // 红色显示笔记
-        doc.text(`笔记: ${note}`, 10, y);
-        doc.setTextColor(0, 0, 0); // 恢复黑色
+      if (note) {
+        doc.setTextColor(200, 0, 0); // 红色笔记
+        doc.text(`笔记：${note}`, 10, y);
+        doc.setTextColor(0, 0, 0);
         y += lineHeight;
       }
-      if(y > pageHeight - 20){
+
+      if (y > pageHeight - 20) {
         doc.addPage();
+        doc.setFont("SourceHanSans-Normal"); // 每页都要重新设置字体
         y = 10;
       }
     });
+
     doc.save('文章笔记导出.pdf');
   });
 })();
@@ -581,7 +592,9 @@ document.getElementById('backToTopBtn').addEventListener('click', () => {
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/polyfills.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/fontsource-hansans-normal.js"></script>
 
 
 </html>
