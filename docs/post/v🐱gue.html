@@ -435,52 +435,52 @@ let originalHTML = "";
   });
 })();
 
-(function () {
-  const postBody = document.getElementById('postBody');
-  const STORAGE_KEY = 'myParagraphNotes';
-  let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+window.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'myParagraphNotes';
+    const postBody = document.getElementById('postBody');
+    const notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-  document.getElementById('exportPdfBtn').addEventListener('click', e => {
-    e.preventDefault();
+    const exportBtn = document.getElementById('exportPdfBtn');
+    exportBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-    // 设置中文字体（必须）
-    doc.setFont("SourceHanSans-Normal");
-    doc.setFontSize(12);
+      // ⬇️ 设置字体为 Source Han Sans（思源黑体）
+      doc.addFileToVFS("SourceHanSans-Normal.ttf", window.sourceHanSansNormal); // 注册字体数据
+      doc.addFont("SourceHanSans-Normal.ttf", "SourceHanSans", "normal");
+      doc.setFont("SourceHanSans", "normal");
 
-    const paragraphs = postBody.querySelectorAll('span.paragraph');
-    let y = 10;
-    const lineHeight = 10;
-    const pageHeight = doc.internal.pageSize.height;
+      const paragraphs = postBody.querySelectorAll('span.paragraph');
+      let y = 10;
+      const lineHeight = 10;
+      const pageHeight = doc.internal.pageSize.height;
 
-    paragraphs.forEach(p => {
-      const text = p.innerText.trim(); // 注意用 innerText，避免笔记 span 被读进去
-      if (!text) return;
+      paragraphs.forEach(p => {
+        const text = p.textContent.trim();
+        if (text) {
+          doc.text(text, 10, y);
+          y += lineHeight;
+        }
 
-      doc.setTextColor(0, 0, 0);
-      doc.text(text, 10, y);
-      y += lineHeight;
+        const note = notesData[p.id];
+        if (note) {
+          doc.setTextColor(255, 0, 0); // 红色显示笔记
+          doc.text(`笔记: ${note}`, 10, y);
+          doc.setTextColor(0, 0, 0);
+          y += lineHeight;
+        }
 
-      const note = notesData[p.id];
-      if (note) {
-        doc.setTextColor(200, 0, 0); // 红色笔记
-        doc.text(`笔记：${note}`, 10, y);
-        doc.setTextColor(0, 0, 0);
-        y += lineHeight;
-      }
+        if (y > pageHeight - 20) {
+          doc.addPage();
+          y = 10;
+        }
+      });
 
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        doc.setFont("SourceHanSans-Normal"); // 每页都要重新设置字体
-        y = 10;
-      }
+      doc.save('文章笔记导出.pdf');
     });
-
-    doc.save('文章笔记导出.pdf');
   });
-})();
 
 (function() {
   const STORAGE_KEY = 'myParagraphNotes';
