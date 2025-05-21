@@ -3075,89 +3075,100 @@ function iFrameLoading(){
 
 (() => {
   const ttsBtn = document.getElementById('ttsBtn');
+  const ttsRateSelect = document.getElementById('ttsRate');
+  const postBody = document.getElementById('postBody');
   let utterance = null;
   let isSpeaking = false;
   let sentenceSpans = [];
-  let currentSentenceIndex = 0;
+  let currentIndex = 0;
 
-  function splitTextToSentences(text) {
-    return text.match(/[^。！？\n]+[。！？]?/g) || [text];
+  function resetTTSButton() {
+    ttsBtn.title = "朗读/暂停";
+    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
   }
 
-  function prepareSentences() {
-    const postBody = document.getElementById('postBody');
-    const children = Array.from(postBody.children);
-    sentenceSpans = [];
+  function clearHighlights() {
+    sentenceSpans.forEach(span => span.classList.remove("highlighted-sentence"));
+  }
 
-    children.forEach(el => {
-      if (!el.innerText.trim()) return;
-
-      const sentences = splitTextToSentences(el.innerText);
-      el.innerHTML = '';  // 清空但保留标签本身（如 <p>）
-
-      sentences.forEach((s, i) => {
-        const span = document.createElement('span');
-        span.className = 'tts-sentence';
-        span.textContent = s;
-        el.appendChild(span);
-        sentenceSpans.push(span);
-      });
+  function scrollIntoViewSmoothly(el) {
+    el.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
     });
   }
 
-  function highlightSentence(index) {
-    sentenceSpans.forEach(span => span.classList.remove('highlighted'));
-    const span = sentenceSpans[index];
-    if (span) {
-      span.classList.add('highlighted');
-      span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  function splitTextIntoSentences(text) {
+    return text.match(/[^。！？]+[。！？]?/g) || [text];
+  }
+
+  function prepareSentences() {
+    const text = postBody.innerText.trim();
+    const sentences = splitTextIntoSentences(text);
+    postBody.innerHTML = ""; // 清空内容
+    sentenceSpans = sentences.map(s => {
+      const span = document.createElement("span");
+      span.textContent = s;
+      span.style.display = "inline";
+      postBody.appendChild(span);
+      postBody.appendChild(document.createTextNode(" ")); // 保持间距
+      return span;
+    });
+    return sentences;
+  }
+
+  function speakSentences(sentences) {
+    if (!window.speechSynthesis) return alert("不支持语音合成");
+    if (!sentences.length) return;
+
+    currentIndex = 0;
+    isSpeaking = true;
+
+    function speakNext() {
+      if (currentIndex >= sentences.length) {
+        isSpeaking = false;
+        resetTTSButton();
+        return;
+      }
+
+      const text = sentences[currentIndex];
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "zh-CN";
+      utterance.rate = parseFloat(ttsRateSelect?.value || 1);
+
+      utterance.onstart = () => {
+        clearHighlights();
+        const span = sentenceSpans[currentIndex];
+        if (span) {
+          span.classList.add("highlighted-sentence");
+          scrollIntoViewSmoothly(span);
+        }
+      };
+
+      utterance.onend = () => {
+        currentIndex++;
+        speakNext();
+      };
+
+      utterance.onerror = () => {
+        isSpeaking = false;
+        resetTTSButton();
+        alert("朗读出错");
+      };
+
+      speechSynthesis.speak(utterance);
     }
+
+    speakNext();
   }
 
-  function reset() {
-    sentenceSpans.forEach(span => span.classList.remove('highlighted'));
-    ttsBtn.title = "朗读/暂停";
-    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
-    isSpeaking = false;
-  }
-
-  ttsBtn.addEventListener('click', () => {
+  ttsBtn.addEventListener("click", () => {
     if (!window.speechSynthesis) {
       alert('你的浏览器不支持语音合成功能');
       return;
     }
 
-    if (!isSpeaking) {
-      prepareSentences();
-      const text = sentenceSpans.map(s => s.textContent).join(' ');
-      utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.2;
-
-      utterance.onboundary = (event) => {
-        if (event.name !== 'word') return;
-        const charIndex = event.charIndex;
-
-        let count = 0;
-        for (let i = 0; i < sentenceSpans.length; i++) {
-          count += sentenceSpans[i].textContent.length;
-          if (charIndex < count) {
-            highlightSentence(i);
-            break;
-          }
-        }
-      };
-
-      utterance.onend = reset;
-      utterance.onerror = () => {
-        alert('朗读出错');
-        reset();
-      };
-
-      speechSynthesis.speak(utterance);
-      isSpeaking = true;
-      ttsBtn.title = "暂停朗读";
-      ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z");
-    } else {
+    if (isSpeaking) {
       if (speechSynthesis.paused) {
         speechSynthesis.resume();
         ttsBtn.title = "暂停朗读";
@@ -3167,8 +3178,17 @@ function iFrameLoading(){
         ttsBtn.title = "继续朗读";
         ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
       }
+    } else {
+      speechSynthesis.cancel();
+      clearHighlights();
+      const sentences = prepareSentences();
+      speakSentences(sentences);
+      ttsBtn.title = "暂停朗读";
+      ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z");
     }
   });
+
+
 })();
 
 
