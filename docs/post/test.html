@@ -236,24 +236,30 @@ function iFrameLoading(){
         }
     }
 }
-document.getElementById('exportNotesBtn').addEventListener('click', () => {
-  const notes = Array.from(document.querySelectorAll('mark, [data-note="true"]'))
-    .map((el, i) => `# 段落 ${i + 1}\n${el.innerText.trim()}`)
-    .join('\n\n');
-
-  if (!notes) {
-    alert("你还没有添加任何笔记！");
+document.getElementById('exportNotesBtn')?.addEventListener('click', () => {
+  const notesData = JSON.parse(localStorage.getItem('myParagraphNotes') || '{}');
+  if (!Object.keys(notesData).length) {
+    alert('你还没有收藏任何段落');
     return;
   }
 
-  const blob = new Blob([notes], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  let exportText = '我的段落笔记：\n\n';
 
+  for (const [pid, note] of Object.entries(notesData)) {
+    const paraElem = document.getElementById(pid);
+    const paraText = paraElem ? paraElem.innerText.replace(/\n/g, ' ') : '[段落丢失]';
+    exportText += `段落 ${pid.replace('para-', '')}：\n${paraText}\n笔记：${note}\n\n`;
+  }
+
+  // 创建 Blob 下载
+  const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'notes.txt';
+  a.download = '我的段落笔记.txt';
+  document.body.appendChild(a);
   a.click();
-
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
 
