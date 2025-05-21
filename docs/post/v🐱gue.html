@@ -464,22 +464,19 @@ let originalHTML = "";
   function setupParagraph(p) {
     p.addEventListener('click', () => {
       const pid = p.id;
-      if (notesData[pid]) {
-        // 取消收藏
-        if (confirm('取消收藏并删除笔记？')) {
-          delete notesData[pid];
-          renderParagraph(p);
-          saveNotes();
-        }
+      const currentNote = notesData[pid] || '';
+      const userInput = prompt('编辑笔记（留空将删除）：', currentNote);
+
+      if (userInput === null) return; // 取消
+
+      if (userInput.trim() === '') {
+        delete notesData[pid];
       } else {
-        // 新收藏，弹出笔记输入框
-        const note = prompt('请输入段落笔记（留空取消收藏）:');
-        if (note && note.trim() !== '') {
-          notesData[pid] = note.trim();
-          renderParagraph(p);
-          saveNotes();
-        }
+        notesData[pid] = userInput.trim();
       }
+
+      renderParagraph(p);
+      saveNotes();
     });
   }
 
