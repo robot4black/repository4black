@@ -269,7 +269,20 @@ let originalHTML = "";
   }
 
   function prepareSentences() {
-    const text = postBody.innerText.trim();
+    const postBody = document.getElementById('postBody');
+    const text = Array.from(postBody.childNodes)
+      .filter(node => node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE)
+      .map(node => {
+        // 如果是元素节点，且是用户添加的标记（比如 mark 或带 data-* 属性），跳过
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node;
+          if (el.tagName === 'MARK' || el.dataset?.note === 'true') return '';
+          return el.innerText || el.textContent || '';
+        }
+        return node.textContent;
+      })
+      .join('\n')
+      .trim();
     const sentences = splitTextIntoSentences(text);
     originalHTML = postBody.innerHTML;
     postBody.innerHTML = ""; // 清空内容
