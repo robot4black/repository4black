@@ -120,6 +120,11 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
             <path d="M4 4 v8 l6 -4 -6 -4 z" fill-rule="evenodd"></path>
         </svg>
     </a>
+    <a id="exportNotesBtn" class="btn btn-invisible circle" title="导出笔记" href="javascript:void(0)">
+        <svg width="16" height="16" class="octicon">
+            <path d="M5 3v2h6V3h2v2h1a1 1 0 011 1v2H2V6a1 1 0 011-1h1V3h2zm-3 6h14v2a1 1 0 01-1 1H3a1 1 0 01-1-1V9zm0 4h14v2H2v-2z"></path>
+        </svg>
+    </a>
 
 </div>
 </div>
@@ -231,6 +236,26 @@ function iFrameLoading(){
         }
     }
 }
+document.getElementById('exportNotesBtn').addEventListener('click', () => {
+  const notes = Array.from(document.querySelectorAll('mark, [data-note="true"]'))
+    .map((el, i) => `# 段落 ${i + 1}\n${el.innerText.trim()}`)
+    .join('\n\n');
+
+  if (!notes) {
+    alert("你还没有添加任何笔记！");
+    return;
+  }
+
+  const blob = new Blob([notes], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'notes.txt';
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
 
 let originalHTML = "";
 (() => {
