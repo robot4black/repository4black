@@ -273,10 +273,13 @@ document.getElementById('exportNotesBtn')?.addEventListener('click', () => {
   let exportText = '我的段落笔记：\n\n';
 
   for (const [pid, note] of Object.entries(notesData)) {
-    const paraElem = document.getElementById(pid);
-    const paraText = paraElem ? paraElem.innerText.replace(/\n/g, ' ') : '[段落丢失]';
-    exportText += `段落 ${pid.replace('para-', '')}：\n${paraText}\n笔记：${note}\n\n`;
-  }
+  const paraElem = document.getElementById(pid);
+  if (!paraElem) continue;
+  const paraText = paraElem.cloneNode(true);
+  paraText.querySelectorAll('.note-text').forEach(n => n.remove());
+  const pureText = paraText.innerText.replace(/\n/g, ' ');
+  exportText += `段落 ${pid.replace('para-', '')}：\n${pureText}\n笔记：${note}\n\n`;
+    }
 
   // 创建 Blob 下载
   const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
@@ -332,7 +335,15 @@ let originalHTML = "";
 
   function prepareSentences() {
     const postBody = document.getElementById('postBody');
-    const text = getCleanTextFromPostBody();
+    const text = Array.from(document.querySelectorAll('#postBody .paragraph'))
+      .map(p => {
+        // 拿掉 .note-text 的内容
+        const clone = p.cloneNode(true);
+        clone.querySelectorAll('.note-text').forEach(n => n.remove());
+        return clone.innerText.trim();
+      })
+      .filter(Boolean)
+      .join('\n');
     const sentences = splitTextIntoSentences(text);
     originalHTML = postBody.innerHTML;
     postBody.innerHTML = ""; // 清空内容
@@ -449,22 +460,26 @@ let originalHTML = "";
   }
 
   function renderParagraph(p) {
-    const pid = p.id;
-    if (notesData[pid]) {
-      p.classList.add('highlighted');
-      let noteSpan = p.querySelector('.note-text');
-      if (!noteSpan) {
-        noteSpan = document.createElement('span');
-        noteSpan.className = 'note-text';
-        p.appendChild(noteSpan);
-      }
-      noteSpan.textContent = notesData[pid];
-    } else {
-      p.classList.remove('highlighted');
-      const noteSpan = p.querySelector('.note-text');
-      if (noteSpan) noteSpan.remove();
-    }
+  const pid = p.id;
+  // 移除旧笔记
+  const oldNote = p.querySelector('.note-text');
+  if (oldNote) oldNote.remove();
+
+  if (notesData[pid]) {
+    p.classList.add('highlighted');
+    const noteElem = document.createElement('div');
+    noteElem.className = 'note-text';
+    noteElem.textContent = notesData[pid];
+    noteElem.style.fontSize = '0.9em';
+    noteElem.style.color = '#888';
+    noteElem.style.marginTop = '4px';
+    noteElem.setAttribute('data-note', 'true');
+    p.appendChild(noteElem);
+  } else {
+    p.classList.remove('highlighted');
   }
+}
+
 
   // 点击段落，收藏/取消+弹笔记编辑
   function setupParagraph(p) {
