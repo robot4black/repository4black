@@ -258,7 +258,6 @@ document.getElementById('exportNotesBtn')?.addEventListener('click', () => {
   exportText += `段落 ${pid.replace('para-', '')}：\n${pureText}\n笔记：${note}\n\n`;
     }
 
-  // 创建 Blob 下载
   const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -269,6 +268,25 @@ document.getElementById('exportNotesBtn')?.addEventListener('click', () => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
+
+(function() {
+  const STORAGE_KEY = 'postScrollPosition';
+  window.addEventListener('load', () => {
+    const savedPos = localStorage.getItem(STORAGE_KEY);
+    if (savedPos) {
+      window.scrollTo(0, parseInt(savedPos, 10));
+    }
+  });
+
+  let saveTimeout = null;
+  window.addEventListener('scroll', () => {
+    if (saveTimeout) return;
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, window.scrollY);
+      saveTimeout = null;
+    }, 200);
+  });
+})();
 
 let originalHTML = "";
 (() => {
@@ -414,7 +432,6 @@ let originalHTML = "";
 
   if (!postBody) return;
 
-  // 拆分文本为伪段落（按换行）
   const text = postBody.innerText || postBody.textContent;
   const lines = text.split(/\n+/).filter(line => line.trim().length > 0);
 
@@ -428,7 +445,6 @@ let originalHTML = "";
     postBody.appendChild(span);
   });
 
-  // 读取本地收藏笔记数据
   let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
 
@@ -438,7 +454,6 @@ let originalHTML = "";
 
   function renderParagraph(p) {
   const pid = p.id;
-  // 移除旧笔记
   const oldNote = p.querySelector('.note-text');
   if (oldNote) oldNote.remove();
 
@@ -458,7 +473,6 @@ let originalHTML = "";
 }
 
 
-  // 点击段落，收藏/取消+弹笔记编辑
   function setupParagraph(p) {
     p.addEventListener('click', () => {
       const pid = p.id;
@@ -478,7 +492,6 @@ let originalHTML = "";
     });
   }
 
-  // 初始化所有段落
   document.querySelectorAll('#postBody .paragraph').forEach(p => {
     renderParagraph(p);
     setupParagraph(p);
