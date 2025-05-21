@@ -187,7 +187,7 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 
 </script>
 
 <script>
-let CleanText = document.getElementById('postBody').innerHTML;
+let CleanText = "";
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 //document.getElementById("read").setAttribute("d",IconList["startread"]);
 console.log(IconList["startread"]);
@@ -252,16 +252,7 @@ let originalHTML = "";
     ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
   }
 
-  function getCleanTextFromPostBody() {
-  const postBody = document.getElementById('postBody');
-  const clone = postBody.cloneNode(true);
-  clone.querySelectorAll('mark, .highlight, [data-note="true"]').forEach(el => {
-    const textNode = document.createTextNode(el.innerText || el.textContent || '');
-    el.replaceWith(textNode);
-  });
-
-  return clone.innerText.trim();
-}
+ 
   function clearHighlights() {
     sentenceSpans.forEach(span => span.classList.remove("highlighted-sentence"));
   }
@@ -370,7 +361,7 @@ let originalHTML = "";
 (function() {
   const STORAGE_KEY = 'myParagraphNotes';
   const postBody = document.getElementById('postBody');
-
+  CleanText = document.getElementById('postBody').innerHTML;
   if (!postBody) return;
 
   // 拆分文本为伪段落（按换行）
