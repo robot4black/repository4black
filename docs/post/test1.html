@@ -1998,7 +1998,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
     <a id="ttsBtn" class="btn btn-invisible circle" title="Read">
       <svg class="octicon" width="16" height="16">
-        <path d="M4 4v8l6-4-6-4z" fill-rule="evenodd"></path>
+        <path id="Read" fill-rule="evenodd"></path>
       </svg>
     </a>
 
@@ -3025,6 +3025,7 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 
 
 <script>
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("Read").setAttribute("d",IconList["StartRead"]);
 document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
 
 
@@ -3070,7 +3071,6 @@ function iFrameLoading(){
 
 function resetTTSButton() {
     ttsBtn.title = "Read";
-    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
   }
 
   ttsBtn.addEventListener('click', () => {
@@ -3083,11 +3083,11 @@ function resetTTSButton() {
       if (speechSynthesis.paused) {
         speechSynthesis.resume();
         ttsBtn.title = "暂停朗读";
-        ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z");
+        ttsBtn.querySelector('path').setAttribute('d', IconList["StopRead"]);
       } else {
         speechSynthesis.pause();
         ttsBtn.title = "继续朗读";
-        ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
+        document.getElementById("Read").setAttribute("d",IconList["StartRead"]);
       }
     } else {
       const text = document.getElementById('postBody').innerText.trim();
