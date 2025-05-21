@@ -237,9 +237,10 @@ function iFrameLoading(){
         }
     }
 }
-
+let CleanText = document.getElementById('postBody').innerHTML;
 let originalHTML = "";
 (() => {
+
   const ttsBtn = document.getElementById('ttsBtn');
   const ttsRateSelect = document.getElementById('ttsRate');
   const postBody = document.getElementById('postBody');
@@ -280,7 +281,7 @@ let originalHTML = "";
 
   function prepareSentences() {
     const postBody = document.getElementById('postBody');
-    const text = getCleanTextFromPostBody();
+    const text = CleanText;
     const sentences = splitTextIntoSentences(text);
     originalHTML = postBody.innerHTML;
     postBody.innerHTML = ""; // 清空内容
@@ -388,15 +389,10 @@ let originalHTML = "";
     postBody.appendChild(span);
   });
 
-  // 读取本地收藏笔记数据
   let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-
-  // 保存函数
   function saveNotes() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notesData));
   }
-
-  // 渲染段落收藏高亮和笔记
   function renderParagraph(p) {
     const pid = p.id;
     if (notesData[pid]) {
