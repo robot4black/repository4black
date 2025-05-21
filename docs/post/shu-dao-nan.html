@@ -76,6 +76,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
 
+    <a id="ttsBtn" class="btn btn-invisible circle" title="Read">
+      <svg class="octicon" width="16" height="16">
+        <path d="M4 4v8l6-4-6-4z" fill-rule="evenodd"></path>
+      </svg>
+    </a>
+
+
 </div>
 </div>
     <div id="content">
@@ -200,6 +207,61 @@ function iFrameLoading(){
 }
 
 
+
+function resetTTSButton() {
+    ttsBtn.title = "Read";
+    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
+  }
+
+  ttsBtn.addEventListener('click', () => {
+    if (!window.speechSynthesis) {
+      alert('你的浏览器不支持语音合成功能');
+      return;
+    }
+
+    if (isSpeaking) {
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+        ttsBtn.title = "暂停朗读";
+        ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z");
+      } else {
+        speechSynthesis.pause();
+        ttsBtn.title = "继续朗读";
+        ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
+      }
+    } else {
+      const text = document.getElementById('postBody').innerText.trim();
+      if (!text) return alert('文章内容为空');
+
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = parseFloat(ttsRateSelect.value);
+
+      utterance.onend = () => {
+        isSpeaking = false;
+        resetTTSButton();
+      };
+      utterance.onerror = () => {
+        isSpeaking = false;
+        resetTTSButton();
+        alert('朗读出现错误');
+      };
+
+      speechSynthesis.speak(utterance);
+      isSpeaking = true;
+      ttsBtn.title = "暂停朗读";
+      ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z");
+    }
+  });
+
+  ttsRateSelect.addEventListener('change', () => {
+    if (utterance && isSpeaking) {
+      speechSynthesis.cancel();
+      isSpeaking = false;
+      ttsBtn.title = "Read";
+      ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
+    }
+  });
+})();
 
 </script>
 
