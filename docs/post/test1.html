@@ -1957,82 +1957,19 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <style>
 .postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
 .title-right{display:flex;margin:auto 0 0 auto;}
-.title-right .circle{padding: 14px 14px;margin-right:8px;}
-#postBody {
-    border-bottom: 1px solid var(--color-border-default);
-    padding-bottom: 36px;
-    max-width: 720px;
-    margin: 0 auto;
-    padding-left: 16px;
-    padding-right: 16px;
-}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
 #postBody hr{height:2px;}
 #cmButton{height:48px;margin-top:48px;}
 #comments{margin-top:64px;}
 .g-emoji{font-size:24px;}
-.btn-invisible.circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  line-height: 0;
-}
-.btn-invisible.circle svg {
-  width: 16px;
-  height: 16px;
-}
-
-#readingProgress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: #007aff;
-  width: 0%;
-  z-index: 999;
-}
-
-#backToTop {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  z-index: 999;
-  background: var(--color-btn-bg);
-  color: var(--color-fg-default);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-#readingStats {
-  font-size: 13px;
-  color: var(--color-fg-muted);
-  background-color: var(--color-canvas-subtle);
-  padding: 6px 12px;
-  border-left: 4px solid var(--color-accent-fg);
-  border-radius: 4px;
-  margin: 8px auto 16px auto;
-  max-width: 720px;
-}
-
 @media (max-width: 600px) {
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
 
 </style>
+
 
 
 
@@ -2052,37 +1989,16 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
     
+
     <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
-        <svg class="octicon" width="16" height="16">
+        <svg class="octicon" width="16" height="16" >
             <path id="themeSwitch" fill-rule="evenodd"></path>
         </svg>
     </a>
-    <a id="copyLinkBtn" class="btn btn-invisible circle">
-      <svg class="octicon" width="16" height="16" fill="currentColor">
-        <path d="M7 10h1v2H7v-2zM3 2v2H2v12h12v-3h2v4H2V2h1z"></path>
-      </svg>
-    </a>
-    <a id="alignToggleBtn" class="btn btn-invisible circle">
-        <svg class="octicon" width="16" height="16" fill="currentColor">
-            <path d="M7 10h1v2H7v-2zM3 2v2H2v12h12v-3h2v4H2V2h1z"></path>
-        </svg>
-    </a>
-    <a id="ttsBtn" class="btn btn-invisible circle" title="朗读/暂停">
-      <svg class="octicon" width="16" height="16" fill="currentColor">
-        <path d="M4 4v8l6-4-6-4z"></path>
-      </svg>
-    </a>
-    <select id="ttsRate" title="语速" style="margin-left: 8px; height: 24px; font-size: 12px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--color-border-default); background-color: var(--color-canvas-subtle);">
-      <option value="0.75">0.75x</option>
-      <option value="1" selected>1x</option>
-      <option value="1.25">1.25x</option>
-      <option value="1.5">1.5x</option>
-      <option value="2">2x</option>
-    </select>
+
 </div>
 </div>
     <div id="content">
-<div id="readingStats"></div>
 <div class="markdown-body" id="postBody"><p>1111111111111111111111hibernate.connection.driver_class=org.h2.Driver<br>
 hibernate.connection.url=jdbc:h2:<del>/docdb;AUTO_SERVER=TRUE<br>
 hibernate.connection.username=sa<br>
@@ -3050,8 +2966,6 @@ hibernate.connection.pool_validation_interval=5</p></div>
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
 
-
-<a id="backToTop" title="Back to Top">↑</a>
 </div>
     <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://robot4black.github.io/repository4black/">Test</a></div>
 <div id="footer2">
@@ -3106,125 +3020,6 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
 
-document.getElementById("copyLinkBtn").addEventListener("click", () => {
-  const url = window.location.href;
-  navigator.clipboard.writeText(url).then(() => {
-    alert("文章链接已复制！");
-  }).catch(() => {
-    alert("复制失败，请手动复制链接");
-  });
-});
-
-document.getElementById("alignToggleBtn").addEventListener("click", function () {
-  const postBody = document.getElementById("postBody");
-  const currentAlign = postBody.style.textAlign;
-  if (currentAlign === "center") {
-    postBody.style.textAlign = "left";
-  } else {
-    postBody.style.textAlign = "center";
-  }
-});
-
-// 阅读进度条
-window.addEventListener('scroll', () => {
-  const progressBar = document.getElementById('readingProgress');
-  const totalHeight = document.body.scrollHeight - window.innerHeight;
-  const progress = (window.scrollY / totalHeight) * 100;
-  progressBar.style.width = progress + '%';
-});
-
-// 阅读时间 + 字数统计
-document.addEventListener("DOMContentLoaded", () => {
-  const text = document.getElementById('postBody').innerText || '';
-  const chineseChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
-  const englishWords = (text.match(/\b[a-zA-Z]+\b/g) || []).length;
-  const totalWords = chineseChars + englishWords;
-  const readTime = Math.max(1, Math.ceil(totalWords / 300));
-  document.getElementById('readingStats').innerText =
-    `预计阅读时间: ${readTime} 分钟 · ${totalWords} 字`;
-});
-
-
-// 返回顶部按钮
-const backToTopBtn = document.getElementById('backToTop');
-window.addEventListener('scroll', () => {
-  backToTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-});
-backToTopBtn.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// 快捷键 Ctrl+K 切换主题
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    modeSwitch();
-  }
-});
-
-(() => {
-  const ttsBtn = document.getElementById('ttsBtn');
-  const ttsRateSelect = document.getElementById('ttsRate');
-  let utterance = null;
-  let isSpeaking = false;
-
-  function resetTTSButton() {
-    ttsBtn.title = "朗读/暂停";
-    ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
-  }
-
-  ttsBtn.addEventListener('click', () => {
-    if (!window.speechSynthesis) {
-      alert('你的浏览器不支持语音合成功能');
-      return;
-    }
-
-    if (isSpeaking) {
-      // 暂停或继续
-      if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-        ttsBtn.title = "暂停朗读";
-        ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z"); // 暂停图标
-      } else {
-        speechSynthesis.pause();
-        ttsBtn.title = "继续朗读";
-        ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z"); // 播放图标
-      }
-    } else {
-      // 开始朗读
-      const text = document.getElementById('postBody').innerText.trim();
-      if (!text) return alert('文章内容为空');
-
-      utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = parseFloat(ttsRateSelect.value);
-
-      utterance.onend = () => {
-        isSpeaking = false;
-        resetTTSButton();
-      };
-      utterance.onerror = () => {
-        isSpeaking = false;
-        resetTTSButton();
-        alert('朗读出现错误');
-      };
-
-      speechSynthesis.speak(utterance);
-      isSpeaking = true;
-      ttsBtn.title = "暂停朗读";
-      ttsBtn.querySelector('path').setAttribute('d', "M6 4h2v8H6zM10 4h2v8h-2z"); // 暂停图标
-    }
-  });
-
-  ttsRateSelect.addEventListener('change', () => {
-    if (utterance && isSpeaking) {
-      // 变更语速需要重新开始朗读
-      speechSynthesis.cancel();
-      isSpeaking = false;
-      ttsBtn.title = "朗读/暂停";
-      ttsBtn.querySelector('path').setAttribute('d', "M4 4v8l6-4-6-4z");
-    }
-  });
-})();
 
 
 function openComments(){
