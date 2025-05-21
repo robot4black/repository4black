@@ -125,7 +125,11 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
             <path d="M5 3v2h6V3h2v2h1a1 1 0 011 1v2H2V6a1 1 0 011-1h1V3h2zm-3 6h14v2a1 1 0 01-1 1H3a1 1 0 01-1-1V9zm0 4h14v2H2v-2z"></path>
         </svg>
     </a>
-
+    <a id="exportPdfBtn" href="#" class="btn btn-invisible circle" title="导出PDF">
+      <svg width="16" height="16" class="octicon">
+        <path d="M5 3v2h6V3h2v2h1a1 1 0 011 1v2H2V6a1 1 0 011-1h1V3h2zm-3 6h14v2a1 1 0 01-1 1H3a1 1 0 01-1-1V9zm0 4h14v2H2v-2z"></path>
+      </svg>
+    </a>
 </div>
 </div>
     <div id="content">
@@ -426,6 +430,42 @@ let originalHTML = "";
   });
 })();
 
+(function(){
+  const postBody = document.getElementById('postBody');
+  const STORAGE_KEY = 'myParagraphNotes';
+  let notesData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+  document.getElementById('exportPdfBtn').addEventListener('click', e => {
+    e.preventDefault();
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const paragraphs = postBody.querySelectorAll('span.paragraph');
+    let y = 10; // 页面顶部起始纵坐标
+    const lineHeight = 8;
+    const pageHeight = doc.internal.pageSize.height;
+
+    paragraphs.forEach(p => {
+      const text = p.textContent.trim();
+      doc.text(text, 10, y);
+      y += lineHeight;
+      const note = notesData[p.id];
+      if(note){
+        doc.setTextColor(255, 0, 0); // 红色显示笔记
+        doc.text(`笔记: ${note}`, 10, y);
+        doc.setTextColor(0, 0, 0); // 恢复黑色
+        y += lineHeight;
+      }
+      if(y > pageHeight - 20){
+        doc.addPage();
+        y = 10;
+      }
+    });
+    doc.save('文章笔记导出.pdf');
+  });
+})();
+
 (function() {
   const STORAGE_KEY = 'myParagraphNotes';
   const postBody = document.getElementById('postBody');
@@ -517,6 +557,8 @@ document.getElementById('backToTopBtn').addEventListener('click', () => {
 
 
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 
 
 </html>
