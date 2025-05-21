@@ -1996,6 +1996,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
 
+    <a class="btn btn-invisible circle" onclick="ReadText();" title="Read">
+        <svg class="octicon" width="16" height="16" >
+            <path id="Read" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
 </div>
 </div>
     <div id="content">
@@ -3018,6 +3024,7 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 
 
 <script>
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("Read").setAttribute("d",IconList["StartRead"]);
 document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
 
 
