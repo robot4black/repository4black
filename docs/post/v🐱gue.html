@@ -281,7 +281,7 @@ let originalHTML = "";
 
   function prepareSentences() {
     const postBody = document.getElementById('postBody');
-    const text = CleanText;
+    const text = CleanText.trim();
     const sentences = splitTextIntoSentences(text);
     originalHTML = postBody.innerHTML;
     postBody.innerHTML = ""; // 清空内容
